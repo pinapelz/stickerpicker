@@ -36,6 +36,9 @@ window.onmessage = event => {
 	let response
 
 	if (request.action === "visibility") {
+		if (!request.visible && !request.data?.visible) {
+			document.activeElement?.blur?.()
+		}
 		response = {}
 	} else if (request.action === "capabilities") {
 		response = { capabilities: ["m.sticker"] }
@@ -46,7 +49,12 @@ window.onmessage = event => {
 	window.parent.postMessage({ ...request, response }, event.origin)
 }
 
+window.addEventListener("blur", () => {
+	document.activeElement?.blur?.()
+})
+
 export function sendSticker(content) {
+	document.activeElement?.blur?.()
 	const data = {
 		content: { ...content },
 		// `name` is for Element Web (and also the spec)

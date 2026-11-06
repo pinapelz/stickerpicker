@@ -1,7 +1,8 @@
 {
   "packs": [
     "weeb.json",
-    "dank.json"
+    "dank.json",
+    "kpop.json"
   ],
   "homeserver_url": "https://chat.moekyun.me"
 }

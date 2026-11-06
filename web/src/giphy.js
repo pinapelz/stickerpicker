@@ -30,6 +30,7 @@ export class GiphySearchTab extends Component {
 		this.searchKeyUp = this.searchKeyUp.bind(this)
 		this.updateGifSearchQuery = this.updateGifSearchQuery.bind(this)
 		this.searchTimeout = null
+		this.unmounted = false
 	}
 
 	async makeGifSearchRequest() {
@@ -37,18 +38,25 @@ export class GiphySearchTab extends Component {
 			const resp = await fetch(`https://api.giphy.com/v1/gifs/search?q=${this.state.searchTerm}&api_key=${GIPHY_API_KEY}`)
 			// TODO handle error responses properly?
 			const data = await resp.json()
+			if (this.unmounted) {
+				return
+			}
 			if (data.data.length === 0) {
 				this.setState({gifs: [], error: "No results"})
 			} else {
 				this.setState({gifs: data.data, error: null})
 			}
 		} catch (error) {
-			this.setState({error})
+			if (!this.unmounted) {
+				this.setState({error})
+			}
 		}
 	}
 
 	componentWillUnmount() {
+		this.unmounted = true
 		clearTimeout(this.searchTimeout)
+		document.activeElement?.blur?.()
 	}
 
 	searchKeyUp(event) {

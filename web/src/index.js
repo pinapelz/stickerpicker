@@ -210,7 +210,13 @@ class App extends Component {
 	}
 
 	observeSectionIntersections(intersections) {
+		if (!this.navRef) {
+			return
+		}
 		const navWidth = this.navRef.getBoundingClientRect().width
+		if (navWidth === 0) {
+			return
+		}
 		let minX = 0, maxX = navWidth
 		let minXElem = null
 		let maxXElem = null
@@ -235,9 +241,9 @@ class App extends Component {
 			}
 		}
 		if (minXElem !== null) {
-			minXElem.scrollIntoView({inline: "start"})
+			this.navRef.scrollLeft += minX
 		} else if (maxXElem !== null) {
-			maxXElem.scrollIntoView({inline: "end"})
+			this.navRef.scrollLeft += maxX - navWidth
 		}
 	}
 
@@ -299,11 +305,16 @@ class App extends Component {
 		const onClickOverride = this.state.viewingGifs
 			? (evt, packID) => {
 				evt.preventDefault()
+				document.activeElement?.blur?.()
 				this.setState({viewingGifs: false}, () => {
 					scrollToSection(null, packID)
 				})
 			} : null
-		const switchToGiphy = () => this.setState({viewingGifs: true, filtering: defaultState.filtering})
+		const switchToGiphy = evt => {
+			evt?.preventDefault()
+			document.activeElement?.blur?.()
+			this.setState({viewingGifs: true, filtering: defaultState.filtering})
+		}
 
 		return html`
 			<main class="has-content ${theme}">
@@ -356,19 +367,20 @@ const Settings = ({app}) => html`
 	</section>
 `
 
-// By default we just let the browser handle scrolling to sections, but webviews on Element iOS
-// open the link in the browser instead of just scrolling there, so we need to scroll manually:
+// Scroll the pack-list container directly instead of using scrollIntoView or anchor navigation,
+// which can scroll ancestor containers in the parent (host) window when embedded in an iframe.
 const scrollToSection = (evt, id) => {
-	const pack = document.getElementById(`pack-${id}`)
-	if (pack) {
-		pack.scrollIntoView({block: "start", behavior: "instant"})
-	}
 	evt?.preventDefault()
+	const pack = document.getElementById(`pack-${id}`)
+	const packList = pack?.parentElement
+	if (pack && packList) {
+		packList.scrollTop += pack.getBoundingClientRect().top - packList.getBoundingClientRect().top
+	}
 }
 
 const NavBarItem = ({pack, iconOverride = null, onClickOverride = null, extraClass = null}) => html`
 	<a href="#pack-${pack.id}" id="nav-${pack.id}" data-pack-id=${pack.id} title=${pack.title} class="${extraClass}"
-	   onClick=${onClickOverride ? (evt => onClickOverride(evt, pack.id)) : (isMobileSafari ? (evt => scrollToSection(evt, pack.id)) : undefined)}>
+	   onClick=${evt => (onClickOverride || scrollToSection)(evt, pack.id)}>
 		<div class="sticker">
 			${iconOverride ? html`
 				<span class="icon icon-${iconOverride}"/>
