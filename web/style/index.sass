@@ -14,88 +14,149 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ---------------------------------------------------------------------------
+// Layout constants
+// ---------------------------------------------------------------------------
+
+// Pack navigation bar. Icons have a fixed size so that the bar stays compact
+// and can hold a very large number of packs (it scrolls horizontally).
+$nav-item-size: 2.5rem
+$nav-item-gap: .25rem
+$nav-padding-y: .375rem
+$nav-indicator-height: 3px
+$nav-height: calc(#{$nav-item-size} + 2 * #{$nav-padding-y} + #{$nav-indicator-height})
+
+$search-box-icon-size: 1rem
+$search-box-input-height: 2.25rem
+$search-box-margin-y: .5rem
+$search-box-margin-x: .625rem
+$search-box-height: calc(#{$search-box-input-height} + 2 * #{$search-box-margin-y})
+
+$grid-padding: .375rem
+$radius-sm: .5rem
+$radius-md: .75rem
+$radius-lg: 1rem
+
+$ease-out: cubic-bezier(.2, .8, .2, 1)
+
+// ---------------------------------------------------------------------------
+// Base
+// ---------------------------------------------------------------------------
+
 *
-  font-family: sans-serif
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Ubuntu, Cantarell, sans-serif
+
+html, body
+  -webkit-tap-highlight-color: transparent
 
 body
   margin: 0
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
 
 h1
   font-size: 1rem
 
 \:root
   --stickers-per-row: 4
-  --sticker-size: calc(100vw / var(--stickers-per-row))
 
-$nav-sticker-size: 12vw
-$nav-bottom-highlight: 2px
-$nav-height: calc(#{$nav-sticker-size} + #{$nav-bottom-highlight})
-$nav-height-inverse: calc(-#{$nav-sticker-size} - #{$nav-bottom-highlight})
-
-$search-box-icon-size: 1rem
-$search-box-input-height: 1rem
-$search-box-input-padding: .7rem
-$search-box-input-margin: .5rem
-$search-box-height: calc(2 * #{$search-box-input-padding} + 2 * #{$search-box-input-margin} + #{$search-box-input-height})
+// ---------------------------------------------------------------------------
+// Themes
+// ---------------------------------------------------------------------------
 
 main
   color: var(--text-color)
+  background-color: var(--bg-color)
 
   &.spinner
-    margin-top: 5rem
+    padding-top: 5rem
+    min-height: 100vh
+    box-sizing: border-box
 
   &.error, &.empty
-    margin: 2rem
+    min-height: 100vh
+    box-sizing: border-box
+    padding: 2rem
+    margin: 0
+
+    > h1
+      font-size: 1.15rem
+      font-weight: 600
+      margin: 0 0 .5rem
+
+    > p
+      color: var(--text-muted)
+      margin: 0
 
   &.empty
     text-align: center
+    display: flex
+    align-items: center
+    justify-content: center
 
   &.has-content
     position: fixed
-    top: 0
-    left: 0
-    right: 0
-    bottom: 0
+    inset: 0
     display: grid
-    grid-template-rows: $nav-height min-content auto
+    grid-template-rows: $nav-height min-content minmax(0, 1fr)
 
 main.theme-light
-  --highlight-color: #eee
-  --search-box-color: var(--highlight-color)
-  --text-color: black
-  background-color: white
+  --bg-color: #ffffff
+  --surface-color: #f2f4f7
+  --surface-hover-color: #e8ebf0
+  --border-color: rgba(15, 23, 42, .08)
+  --text-color: #17191c
+  --text-muted: #6b7280
+  --accent-color: #0dbd8b
+  --accent-soft: rgba(13, 189, 139, .14)
+  --header-bg: rgba(255, 255, 255, .85)
+  --shadow-color: rgba(15, 23, 42, .12)
+  color-scheme: light
 
 main.theme-dark
-  --highlight-color: #444
-  --search-box-color: #383e4b
-  --text-color: white
-  background-color: #22262e
+  --bg-color: #15191e
+  --surface-color: #21262c
+  --surface-hover-color: #2b3138
+  --border-color: rgba(255, 255, 255, .07)
+  --text-color: #edf0f3
+  --text-muted: #8d97a5
+  --accent-color: #0dbd8b
+  --accent-soft: rgba(13, 189, 139, .18)
+  --header-bg: rgba(21, 25, 30, .85)
+  --shadow-color: rgba(0, 0, 0, .45)
+  color-scheme: dark
 
   .icon.icon-giphy
     background-image: url(../res/giphy-dark.svg)
 
 main.theme-black
-  --highlight-color: #222
-  --search-box-color: var(--highlight-color)
-  --text-color: white
-  background-color: black
+  --bg-color: #000000
+  --surface-color: #141414
+  --surface-hover-color: #1f1f1f
+  --border-color: rgba(255, 255, 255, .08)
+  --text-color: #f2f2f2
+  --text-muted: #8a8a8a
+  --accent-color: #0dbd8b
+  --accent-soft: rgba(13, 189, 139, .2)
+  --header-bg: rgba(0, 0, 0, .85)
+  --shadow-color: rgba(0, 0, 0, .6)
+  color-scheme: dark
 
   .icon.icon-giphy
     background-image: url(../res/giphy-dark.svg)
 
-div.powered-by-giphy
-  padding: 1rem
-  > img
-    width: 100%
+// ---------------------------------------------------------------------------
+// Icons
+// ---------------------------------------------------------------------------
 
 .icon
+  display: block
   width: 100%
   height: 100%
-  background-color: var(--text-color)
-  mask-size: contain
-  -webkit-mask-size: contain
-  mask-image: var(--icon-image)
-  -webkit-mask-image: var(--icon-image)
+  background-color: var(--text-muted)
+  mask: center / contain no-repeat var(--icon-image)
+  -webkit-mask: center / contain no-repeat var(--icon-image)
+  transition: background-color .15s ease
 
   &.icon-settings
     --icon-image: url(../res/settings.svg)
@@ -109,29 +170,178 @@ div.powered-by-giphy
   &.icon.icon-giphy
     background: center / contain no-repeat url(../res/giphy-light.svg)
     mask: unset
+    -webkit-mask: unset
+
+// ---------------------------------------------------------------------------
+// Pack navigation
+// ---------------------------------------------------------------------------
 
 nav
   display: flex
+  align-items: center
+  gap: $nav-item-gap
   overflow-x: auto
+  overflow-y: hidden
+  padding: $nav-padding-y .5rem
+  padding-bottom: calc(#{$nav-padding-y} + #{$nav-indicator-height})
+  box-sizing: border-box
+  height: $nav-height
+  border-bottom: 1px solid var(--border-color)
+  scroll-padding: 0 .5rem
+  overscroll-behavior-x: contain
 
   > a
-    border-bottom: $nav-bottom-highlight solid transparent
+    position: relative
+    flex: 0 0 auto
+    display: block
+    border-radius: $radius-sm
+    outline: none
+    transition: background-color .15s ease
+
+    // Active indicator: small pill under the icon
+    &::after
+      content: ""
+      position: absolute
+      left: 50%
+      bottom: calc(-#{$nav-padding-y} - #{$nav-indicator-height} + 1px)
+      width: 1rem
+      height: $nav-indicator-height
+      border-radius: $nav-indicator-height
+      background-color: var(--accent-color)
+      transform: translateX(-50%) scaleX(0)
+      transition: transform .2s $ease-out
+
+    &:hover
+      background-color: var(--surface-hover-color)
+
+      .icon
+        background-color: var(--text-color)
+
+    &:focus-visible
+      box-shadow: 0 0 0 2px var(--accent-color)
 
     &.visible
-      border-bottom-color: green
+      background-color: var(--accent-soft)
+
+      &::after
+        transform: translateX(-50%) scaleX(1)
+
+      .icon
+        background-color: var(--accent-color)
+
+      .icon.icon-giphy
+        background-color: transparent
 
     > div.sticker
-      width: $nav-sticker-size
-      height: $nav-sticker-size
+      width: $nav-item-size
+      height: $nav-item-size
+      padding: .3rem
+      border-radius: $radius-sm
 
-div.pack-list, nav
+      &:hover
+        background-color: transparent
+
+        > img
+          transform: none
+
+      > img
+        animation: none
+
+      > .icon
+        width: 100%
+        height: 100%
+        margin: 0
+
+        &.icon-giphy
+          width: 100%
+
+// Hide scrollbars, but show a thin one on hover for desktop users with many
+// packs so they can tell there is more content.
+div.pack-list
+  scrollbar-width: thin
+  scrollbar-color: transparent transparent
+
+  &:hover
+    scrollbar-color: var(--surface-hover-color) transparent
+
+  &::-webkit-scrollbar
+    width: 6px
+
+  &::-webkit-scrollbar-thumb
+    background-color: transparent
+    border-radius: 3px
+
+  &:hover::-webkit-scrollbar-thumb
+    background-color: var(--surface-hover-color)
+
+nav
   scrollbar-width: none
 
   &::-webkit-scrollbar
     display: none
 
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+
+div.search-box
+  position: relative
+  display: flex
+  margin: $search-box-margin-y $search-box-margin-x
+
+  > input[type="text"]
+    flex-grow: 1
+    min-width: 0
+    height: $search-box-input-height
+    box-sizing: border-box
+    padding: 0 .875rem 0 calc(#{$search-box-icon-size} + 1.5rem)
+    background-color: var(--surface-color)
+    color: var(--text-color)
+    border: 1px solid transparent
+    border-radius: 999px
+    outline: none
+    font-size: .925rem
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease
+
+    &::placeholder
+      color: var(--text-muted)
+
+    &:hover
+      background-color: var(--surface-hover-color)
+
+    &:focus
+      background-color: var(--bg-color)
+      border-color: var(--accent-color)
+      box-shadow: 0 0 0 3px var(--accent-soft)
+
+  > span.icon
+    position: absolute
+    top: calc(50% - #{$search-box-icon-size} / 2)
+    left: .875rem
+    width: $search-box-icon-size
+    height: $search-box-icon-size
+    pointer-events: none
+
+  &:focus-within > span.icon
+    background-color: var(--accent-color)
+
+div.search-empty
+  margin: 3rem 1.2rem
+  text-align: center
+  color: var(--text-muted)
+
+  > h1
+    font-size: .95rem
+    font-weight: 500
+
+// ---------------------------------------------------------------------------
+// Pack list
+// ---------------------------------------------------------------------------
+
 div.pack-list
   overflow-y: auto
+  overscroll-behavior: contain
+  padding-bottom: .5rem
 
 div.pack-list.ios-safari-hack
   position: fixed
@@ -141,87 +351,175 @@ div.pack-list.ios-safari-hack
   right: 0
   -webkit-overflow-scrolling: touch
 
-div.search-empty
-  margin: 1.2rem
-  text-align: center
-
 section.stickerpack
-  margin-top: .75rem
+  padding: 0 $grid-padding
+  margin-bottom: .5rem
+
+  // Sticky pack headers so you always know which pack you're looking at,
+  // even in packs with hundreds of stickers.
+  > h1
+    position: sticky
+    top: 0
+    z-index: 2
+    margin: 0 (-$grid-padding)
+    padding: .55rem calc(#{$grid-padding} + .4rem) .4rem
+    font-size: .72rem
+    font-weight: 700
+    letter-spacing: .06em
+    text-transform: uppercase
+    color: var(--text-muted)
+    background-color: var(--header-bg)
+    backdrop-filter: saturate(180%) blur(12px)
+    -webkit-backdrop-filter: saturate(180%) blur(12px)
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
   > div.sticker-list
-    display: flex
-    flex-wrap: wrap
+    display: grid
+    grid-template-columns: repeat(var(--stickers-per-row), minmax(0, 1fr))
+    gap: 2px
 
-  > h1
-    margin: 0 0 0 .75rem
+  > div.error:not(:empty)
+    padding: 1rem
+    text-align: center
+    color: var(--text-muted)
 
 section.stickerpack#pack-giphy
   display: flex
   justify-content: space-between
   flex-direction: column
   min-height: 100%
+  box-sizing: border-box
+  padding-top: $grid-padding
+
+div.powered-by-giphy
+  padding: 1rem
+  opacity: .8
+
+  > img
+    width: 100%
+    max-width: 16rem
+    display: block
+    margin: 0 auto
+
+// ---------------------------------------------------------------------------
+// Stickers
+// ---------------------------------------------------------------------------
+
+@keyframes sticker-fade-in
+  from
+    opacity: 0
+    transform: scale(.92)
+  to
+    opacity: 1
+    transform: scale(1)
 
 div.sticker
   display: flex
-  padding: 4px
+  align-items: center
+  justify-content: center
+  padding: 6%
   cursor: pointer
   position: relative
-  width: var(--sticker-size)
-  height: var(--sticker-size)
+  aspect-ratio: 1 / 1
   box-sizing: border-box
-
-  &:hover
-    background-color: var(--highlight-color)
+  border-radius: $radius-md
+  transition: background-color .15s ease
 
   > img
     display: none
     width: 100%
+    height: 100%
     object-fit: contain
+    user-select: none
+    -webkit-user-drag: none
+    transition: transform .18s $ease-out
 
     &.visible
-      display: initial
+      display: block
+      animation: sticker-fade-in .25s $ease-out
+
+  @media (hover: hover)
+    &:hover
+      background-color: var(--surface-color)
+
+      > img
+        transform: scale(1.08)
+
+  &:active
+    background-color: var(--surface-hover-color)
+
+    > img
+      transform: scale(.94)
 
   > .icon
     width: 70%
     height: 70%
-    margin: 15%
 
-div.search-box
-  position: relative
-  display: flex
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
 
-  >input[type="text"]
-    flex-grow: 1
-    background-color: var(--search-box-color)
-    outline: none
-    border: none
-    border-radius: .25rem
-    height: $search-box-input-height
-    padding: $search-box-input-padding
-    padding-right: calc(#{$search-box-icon-size} + #{$search-box-input-padding})
-    margin: $search-box-input-margin
-    font-size: 1rem
-    color: var(--text-color)
-
-  >span.icon
-    display: flex
-    position: absolute
-    top: calc(50% - #{$search-box-icon-size} / 2)
-    right: $search-box-icon-size
-    width: $search-box-icon-size
-    height: $search-box-icon-size
-    box-sizing: border-box
+section.stickerpack.settings
+  padding-bottom: 1rem
 
 div.settings-list
   display: flex
   flex-direction: column
+  gap: .75rem
+  margin: .25rem .4rem 0
+  padding: 1rem
+  background-color: var(--surface-color)
+  border: 1px solid var(--border-color)
+  border-radius: $radius-lg
 
-  > *
-    margin: .5rem
+  > div
+    display: flex
+    flex-direction: column
+    gap: .5rem
+
+  label
+    font-size: .875rem
+    font-weight: 500
 
   button
-    padding: .5rem
-    border-radius: .25rem
+    align-self: flex-start
+    padding: .5rem 1.1rem
+    font-size: .875rem
+    font-weight: 600
+    color: #fff
+    background-color: var(--accent-color)
+    border: none
+    border-radius: 999px
+    cursor: pointer
+    transition: filter .15s ease, transform .1s ease
 
-  input
+    &:hover
+      filter: brightness(1.08)
+
+    &:active
+      transform: scale(.97)
+
+  input[type="range"]
     width: 100%
+    margin: 0
+    accent-color: var(--accent-color)
+
+  select
+    padding: .5rem .75rem
+    font-size: .875rem
+    color: var(--text-color)
+    background-color: var(--bg-color)
+    border: 1px solid var(--border-color)
+    border-radius: $radius-sm
+    outline: none
+
+    &:focus
+      border-color: var(--accent-color)
+      box-shadow: 0 0 0 3px var(--accent-soft)
+
+@media (prefers-reduced-motion: reduce)
+  *
+    animation: none !important
+    transition: none !important
