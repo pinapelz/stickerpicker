@@ -1,3 +1,6 @@
+Band-aid solution to continue using the stickerpicker until MSC2545 works properly in Element. `sync_packs.py` is a script that will upload/sync stickerpacks and attach them to rooms so that those on non-Element clients can make use of them as well (and also make for painless migration when stickers work in Element).
+
+
 # No longer maintained
 [MSC2545](https://github.com/matrix-org/matrix-spec-proposals/pull/2545) has
 been accepted into the Matrix spec and most clients already implemented it long
